@@ -217,8 +217,11 @@
   });
 
   // ---------- two-column layout toggle ----------
+  // Defaults to two columns on mobile landscape until the user picks explicitly, then that choice sticks.
   const TWOCOL_KEY = 'ptt_twocol_v1';
-  let twoCol = localStorage.getItem(TWOCOL_KEY) === '1';
+  const landscapeMQ = window.matchMedia('(max-width: 900px) and (orientation: landscape)');
+  let twoColOverride = localStorage.getItem(TWOCOL_KEY); // '0' | '1' | null (no explicit choice yet)
+  let twoCol = twoColOverride !== null ? twoColOverride === '1' : landscapeMQ.matches;
   const colToggle = document.getElementById('colToggle');
   function refreshColToggle(){
     colToggle.dataset.on = twoCol ? '1' : '0';
@@ -226,11 +229,21 @@
   }
   colToggle.addEventListener('click', ()=>{
     twoCol = !twoCol;
-    localStorage.setItem(TWOCOL_KEY, twoCol ? '1' : '0');
+    twoColOverride = twoCol ? '1' : '0';
+    localStorage.setItem(TWOCOL_KEY, twoColOverride);
     refreshColToggle();
     renderGrid(dayData(viewDate));
   });
   refreshColToggle();
+  const handleOrientationChange = ()=>{
+    if(twoColOverride !== null) return; // user already picked explicitly
+    twoCol = landscapeMQ.matches;
+    refreshColToggle();
+    renderGrid(dayData(viewDate));
+  };
+  if(landscapeMQ.addEventListener) landscapeMQ.addEventListener('change', handleOrientationChange);
+  else landscapeMQ.addListener(handleOrientationChange);
+  window.addEventListener('resize', handleOrientationChange);
 
   // ---------- rendering ----------
   function render(){
