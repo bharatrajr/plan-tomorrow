@@ -1,4 +1,4 @@
-const CACHE = 'plan-tomorrow-v3';
+const CACHE = 'plan-v4';
 const ASSETS = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
